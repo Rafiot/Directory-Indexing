@@ -14,6 +14,9 @@ standard TF/IDF scoring of (using Python notation):
          log(index.doc_count() / len(index.docs_with(term)), 2)
          for term in terms)
 
+The blog post discussing the development of this Gist:
+http://dr-josiah.blogspot.com/2010/07/building-search-engine-using-redis-and.html
+
 '''
 
 import collections
