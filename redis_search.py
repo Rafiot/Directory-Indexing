@@ -1,4 +1,3 @@
-
 '''
 redis_search.py
 
@@ -12,7 +11,7 @@ Redis as a datastore server.  The particular algorithm implemented uses the
 standard TF/IDF scoring of (using Python notation):
 
     sum((document.count(term) / len(document)) *
-         log(index.doc_count() / len(index.docs_with(term), 2)
+         log(index.doc_count() / len(index.docs_with(term)), 2)
          for term in terms)
 
 '''
