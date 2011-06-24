@@ -1,0 +1,22 @@
+# Context
+
+* You have a directory wiht stuff and you can extract strings from this stuff
+  using the command "strings".
+* You are lazy and don't want to open all this files to see what they contains.
+* You know that some of this files contains some particular words (ex: a name)
+* You have a lot of memory available (at least the same size than all the files
+  you want to search in)
+
+# Requirements
+
+* Linux
+* redis (http://redis.io/, https://github.com/antirez/redis)
+* redis-py (https://github.com/andymccurdy/redis-py)
+* ipython (optional but I like it)
+
+# Usage
+
+* Run a redis server
+* Edit directory in strings_generator.py
+* Run strings_generator.py in an interactive python shell (like ipython)
+
