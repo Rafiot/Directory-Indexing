@@ -4,7 +4,7 @@
   using the command "strings".
 * You are lazy and don't want to open all this files to see what they contains.
 * You know that some of this files contains some particular words (ex: a name)
-* You have a lot of memory available (at least the same size than all the files
+* You have a lot of memory available (at least the same size as all the files
   you want to search in)
 
 # Requirements
