@@ -42,14 +42,17 @@ wants was we were what when where which while who whom why will with
 would yet you your'''.split())
 
 class ScoredIndexSearch(object):
-    def __init__(self, prefix, *redis_settings):
+    def __init__(self, prefix = None):
         # All of our index keys are going to be prefixed with the provided
         # prefix string.  This will allow multiple independent indexes to
         # coexist in the same Redis db.
-        self.prefix = prefix.lower().rstrip(':') + ':'
+        if prefix is None:
+            self.prefix = ''
+        else:
+            self.prefix = prefix.lower().rstrip(':') + ':'
 
         # Create a connection to our Redis server.
-        self.connection = redis.Redis(*redis_settings)
+        self.connection = redis.Redis()
 
     @staticmethod
     def get_index_keys(content, add=True):
