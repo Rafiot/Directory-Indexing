@@ -17,6 +17,10 @@ standard TF/IDF scoring of (using Python notation):
 The blog post discussing the development of this Gist:
 http://dr-josiah.blogspot.com/2010/07/building-search-engine-using-redis-and.html
 
+Improved by Raphael Vinot August 06 2011:
+- Optional usage of the Porter Stemmer algorithm
+- Optional usage of the Double Metaphone algorythm
+
 '''
 
 import collections
@@ -26,6 +30,20 @@ import re
 import unittest
 
 import redis
+
+try:
+    import Stemmer
+    use_stem = True
+    print("Use Porter Stemmer algorithm")
+except ImportError:
+    use_stem = False
+
+try:
+    import fuzzy
+    use_metaphone = True
+    print("Use the Double Metaphone algorythm")
+except ImportError:
+    use_metaphone = False
 
 NON_WORDS = re.compile("[^a-z0-9' ]")
 
@@ -61,11 +79,18 @@ class ScoredIndexSearch(object):
         words = NON_WORDS.sub(' ', content.lower()).split()
         words = [word.strip("'") for word in words]
         words = [word for word in words
-                    if word not in STOP_WORDS and len(word) > 1]
-        # Apply the Porter Stemmer here if you would like that functionality.
+            if word not in STOP_WORDS and len(word) > 1]
 
-        # Apply the Metaphone/Double Metaphone algorithm by itself, or after
-        # the Porter Stemmer.
+        if use_stem:
+            stemmer = Stemmer.Stemmer('english')
+            words = stemmer.stemWords(words)
+
+        if use_metaphone:
+            dmeta = fuzzy.DMetaphone()
+            import itertools
+            w = []
+            [ w.extend(list(itertools.chain(dmeta(word)))) for word in words]
+            words = filter (lambda a: a != None, w)
 
         if not add:
             return words
@@ -158,8 +183,8 @@ class ScoredIndexSearch(object):
 
 class TestIndex(unittest.TestCase):
     def test_index_basic(self):
-        t = ScoredIndexSearch('unittest', 'dev.ad.ly')
-        t.connection.delete(*t.connection.keys('unittest:*'))
+        t = ScoredIndexSearch('unittest')
+        t.connection.delete(t.connection.keys('unittest:*'))
 
         t.add_indexed_item(1, 'hello world')
         t.add_indexed_item(2, 'this world is nice and you are really special')
@@ -175,5 +200,21 @@ class TestIndex(unittest.TestCase):
             t.search('hello really special nice world'),
             ([('2', 0.75), ('1', 0.5)], 2))
 
+def stress_test(filename):
+    t = ScoredIndexSearch('stress_test')
+    t.connection.flushdb()
+    f = open(filename)
+    data = ""
+    for line in f:
+        data += " " + line
+    f.close()
+    t.add_indexed_item(1, data)
+
 if __name__ == '__main__':
-    unittest.main()
+    import cProfile
+    cProfile.run("stress_test('test_file')", 'stress_test_output_porter2_1')
+    import pstats
+    p = pstats.Stats('stress_test_output_porter2')
+    p.sort_stats('time').print_stats(10)
+    p = pstats.Stats('stress_test_output_porter2_1')
+    p.sort_stats('time').print_stats(10)
